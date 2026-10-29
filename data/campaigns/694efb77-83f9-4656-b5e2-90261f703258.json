@@ -5,7 +5,8 @@
     "chapter": "Capítulo I",
     "mode": "normal",
     "round": 1,
-    "activeTurn": 0
+    "activeTurn": 0,
+    "turnOrder": []
   },
   "players": [
     {
@@ -1364,14 +1365,16 @@
           "portraitUrl": ""
         },
         "abilities": {
-          "str": 10,
+          "str": 15,
           "dex": 10,
-          "con": 10,
+          "con": 14,
           "int": 10,
-          "wis": 10,
+          "wis": 12,
           "cha": 10
         },
-        "saves": [],
+        "saves": [
+          "Força"
+        ],
         "skills": [],
         "combat": {
           "proficiency": 2,
@@ -2645,26 +2648,52 @@
       "visible": true
     }
   ],
-  "monsters": [],
+  "monsters": [
+    {
+      "id": "a043d9ae-9e61-41e7-8db3-5fa4cdf64fc8",
+      "name": "Novo monstro",
+      "hp": 30,
+      "maxHp": 30,
+      "ac": 15,
+      "image": "",
+      "description": "",
+      "type": "",
+      "size": "",
+      "attacks": [],
+      "initiative": 0,
+      "attackBonus": 0,
+      "effects": [],
+      "die": "d20",
+      "visible": true
+    }
+  ],
   "bosses": [],
   "map": {
     "url": "/maps/8c105d1d-91be-47bb-8fd9-7bddd43cc795.jpg",
     "name": "cofre-monobloco-chaves-do-areeiro-digital.jpg",
-    "visible": false,
+    "visible": true,
     "grid": true,
-    "gridSize": 48,
+    "gridSize": 24,
     "tokens": {
       "player:3": {
-        "x": 0.5063545992198314,
-        "y": 0.5181818181818182
+        "x": 0.6072371718122991,
+        "y": 0.6845729943477746,
+        "size": 42
       },
       "player:4": {
-        "x": 0.6211148861205487,
-        "y": 0.22121212121212122
+        "x": 0.6233350392612116,
+        "y": 0.2129476836233428,
+        "size": 42
+      },
+      "player:2": {
+        "x": 0.4828445708722456,
+        "y": 0.3672176476680871,
+        "size": 128
       }
     },
     "annotations": [],
-    "annotationsVisible": true
+    "annotationsVisible": false,
+    "id": "06e9cb45-c5f2-4bd0-af23-a4dcfa685679"
   },
   "battle": {
     "audioUrl": "",
@@ -2672,6 +2701,90 @@
     "volume": 70
   },
   "log": [
+    {
+      "id": "b8ebe555-5d24-4735-a25d-1357b69e577a",
+      "text": "Novo monstro entrou no encontro.",
+      "type": "public",
+      "at": "2026-10-29T19:58:49.922Z"
+    },
+    {
+      "id": "d1094698-1daf-49af-90d8-4dd7de8c48f6",
+      "text": "Mapa mostrado aos jogadores.",
+      "type": "public",
+      "at": "2026-10-29T19:58:09.356Z"
+    },
+    {
+      "id": "1507be1d-95f6-49c2-9b43-7de76c60aa25",
+      "text": "Anotações do mapa ocultas na vista pública.",
+      "type": "public",
+      "at": "2026-10-29T19:58:07.586Z"
+    },
+    {
+      "id": "6e71167a-a515-4ce8-9705-f6ef41222c95",
+      "text": "Anotações do mapa visíveis na vista pública.",
+      "type": "public",
+      "at": "2026-10-29T19:57:45.197Z"
+    },
+    {
+      "id": "e04a3b2d-025f-4dc3-b8d9-fb3c85d5cc0b",
+      "text": "Anotações do mapa ocultas na vista pública.",
+      "type": "public",
+      "at": "2026-10-29T19:57:44.636Z"
+    },
+    {
+      "id": "15315388-0018-4439-bd81-07e5a7624887",
+      "text": "Player 4 foi movida no mapa.",
+      "type": "public",
+      "at": "2026-10-29T19:57:42.724Z"
+    },
+    {
+      "id": "81f3d40c-b07a-4d68-8aaa-cbd848923576",
+      "text": "Player 3 foi movida no mapa.",
+      "type": "public",
+      "at": "2026-10-29T19:57:41.770Z"
+    },
+    {
+      "id": "33f21d51-3034-4215-87f4-8b7889de3382",
+      "text": "Player 3 foi movida no mapa.",
+      "type": "public",
+      "at": "2026-10-29T19:56:48.948Z"
+    },
+    {
+      "id": "c6ce9709-86bb-442f-b179-ea9a2052e582",
+      "text": "Player 2 foi movida no mapa.",
+      "type": "public",
+      "at": "2026-10-29T19:56:47.764Z"
+    },
+    {
+      "id": "4de6de8a-b7b5-4fc8-ba7a-6026bf02f476",
+      "text": "Player 4 atualizou a ficha.",
+      "type": "public",
+      "at": "2026-10-29T19:56:35.230Z"
+    },
+    {
+      "id": "fd4c5bde-6b57-4201-b054-ae5cbbe1bcac",
+      "text": "Player 4 atualizou a ficha.",
+      "type": "public",
+      "at": "2026-10-29T19:56:33.253Z"
+    },
+    {
+      "id": "fb83b012-b581-4c2c-bd8f-000ae80ed604",
+      "text": "Player 4 atualizou a ficha.",
+      "type": "public",
+      "at": "2026-10-29T19:56:31.193Z"
+    },
+    {
+      "id": "5b20feeb-de6b-4b2d-a693-fb3d39a0ab39",
+      "text": "Player 2 visível na vista pública.",
+      "type": "public",
+      "at": "2026-10-29T19:55:52.456Z"
+    },
+    {
+      "id": "67548c5b-d1ee-4ede-9a82-0c45a6b9c157",
+      "text": "Player 2 oculto na vista pública.",
+      "type": "public",
+      "at": "2026-10-29T19:55:49.732Z"
+    },
     {
       "id": "ccc3343e-e245-458a-ad47-1082b3b20b42",
       "text": "Player 2 visível na vista pública.",
@@ -2770,6 +2883,35 @@
     }
   ],
   "rolls": [],
-  "updatedAt": "2026-10-29T19:08:54.897Z",
-  "campaignId": "694efb77-83f9-4656-b5e2-90261f703258"
+  "updatedAt": "2026-10-29T20:25:47.105Z",
+  "campaignId": "694efb77-83f9-4656-b5e2-90261f703258",
+  "maps": [
+    {
+      "url": "/maps/8c105d1d-91be-47bb-8fd9-7bddd43cc795.jpg",
+      "name": "cofre-monobloco-chaves-do-areeiro-digital.jpg",
+      "visible": true,
+      "grid": true,
+      "gridSize": 24,
+      "tokens": {
+        "player:3": {
+          "x": 0.6072371718122991,
+          "y": 0.6845729943477746,
+          "size": 42
+        },
+        "player:4": {
+          "x": 0.6233350392612116,
+          "y": 0.2129476836233428,
+          "size": 42
+        },
+        "player:2": {
+          "x": 0.4828445708722456,
+          "y": 0.3672176476680871,
+          "size": 128
+        }
+      },
+      "annotations": [],
+      "annotationsVisible": false,
+      "id": "06e9cb45-c5f2-4bd0-af23-a4dcfa685679"
+    }
+  ]
 }

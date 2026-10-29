@@ -1,0 +1,3 @@
+data/srd-cache/
+data/*.tmp
+data/.lock
