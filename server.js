@@ -167,10 +167,11 @@ try {
   if (fs.existsSync(STATE_FILE)) { try { fs.renameSync(STATE_FILE, `${STATE_FILE}.bad-${Date.now()}`); } catch {} console.error(`campaign.json ilegível (${err.message}); cópia guardada como campaign.json.bad-*.`); }
   state = newState(); persist();
 }
-function emptyMap(name='',url='') { return {id:crypto.randomUUID(),url,name,visible:false,annotationsVisible:true,grid:true,gridSize:48,tokens:{},annotations:[]}; }
+function emptyMap(name='',url='') { return {id:crypto.randomUUID(),url,name,visible:false,annotationsVisible:true,grid:true,gridSize:48,tokens:{},annotations:[],fog:{enabled:false,strokes:[]}}; }
 function normalizeMap(m) {
   m.id ||= crypto.randomUUID(); m.tokens ||= {}; m.annotations ||= [];
   if(m.annotationsVisible===undefined)m.annotationsVisible=true; if(m.grid===undefined)m.grid=true; m.gridSize ||= 48;
+  if(!m.fog||typeof m.fog!=='object')m.fog={enabled:false,strokes:[]}; if(!Array.isArray(m.fog.strokes))m.fog.strokes=[];
   return m;
 }
 // state.map is the active scene; state.maps is the scene library and holds the same object,
@@ -399,7 +400,18 @@ function action(body, role, playerId) {
       requireDm();const order=state.campaign.turnOrder||[];if(order.length){const step=Math.trunc(Number(body.step))||1;const previous=Number(state.campaign.activeTurn)||0;const next=previous+step;if(next>=order.length)state.campaign.round=(Number(state.campaign.round)||1)+1;else if(next<0)state.campaign.round=Math.max(1,(Number(state.campaign.round)||1)-1);state.campaign.activeTurn=((next%order.length)+order.length)%order.length;state.campaign.activeName=order[state.campaign.activeTurn]?.name||'';log(`Turno de ${state.campaign.activeName}.`,true,'note',[order[state.campaign.activeTurn]]);}else{state.campaign.activeTurn=(Number(state.campaign.activeTurn)+1)%6;if(state.campaign.activeTurn===0)state.campaign.round=(Number(state.campaign.round)||1)+1;state.campaign.activeName=state.players[state.campaign.activeTurn]?.character||state.players[state.campaign.activeTurn]?.name;log(`Turno de ${state.campaign.activeName}.`,true,'note',[{kind:'player',id:state.players[state.campaign.activeTurn]?.id}]);}break;
     }
     case 'map-visible': requireDm(); state.map.visible = !!body.visible; log(`Mapa ${state.map.visible ? 'mostrado' : 'ocultado'} aos jogadores.`); break;
-    case 'map-options': requireDm(); state.map.grid = body.grid !== false; state.map.gridSize = Math.max(20, Math.min(160, Number(body.gridSize) || 48)); break;
+    case 'map-options': requireDm(); state.map.grid = body.grid !== false; state.map.gridSize = Math.max(8, Math.min(400, Number(body.gridSize) || 48)); break;
+    // Fog of war: an ordered list of brush strokes over the active scene; later strokes win.
+    case 'fog-stroke': {
+      requireDm(); const fog=state.map.fog; if(fog.strokes.length>=800)throw new Error('Nevoeiro com demasiados traços — usa «Cobrir tudo» ou «Revelar tudo» para recomeçar.');
+      const points=(Array.isArray(body.points)?body.points:[]).slice(0,400).map(p=>({x:Math.max(0,Math.min(1,Number(p?.x)||0)),y:Math.max(0,Math.min(1,Number(p?.y)||0))}));
+      if(!points.length)break;
+      // Painting on a fog-free map starts from a clear base, so "hide" strokes add patches of fog.
+      if(!fog.enabled){fog.enabled=true;fog.base='clear';fog.strokes=[];}
+      fog.strokes.push({mode:body.mode==='hide'?'hide':'reveal',r:Math.max(.005,Math.min(.3,Number(body.r)||.05)),points}); break;
+    }
+    case 'fog-reset': requireDm(); state.map.fog={enabled:body.cover===true,base:'covered',strokes:[]}; log(body.cover===true?'O nevoeiro cobriu o mapa.':'O nevoeiro dissipou-se.',false,'dm'); break;
+    case 'fog-undo': requireDm(); state.map.fog.strokes.pop(); if(!state.map.fog.strokes.length&&state.map.fog.base==='clear')state.map.fog.enabled=false; break;
     case 'place-token': { requireDm(); const key=`${body.kind}:${body.id}`,previous=state.map.tokens[key]||{};const x=Math.max(0,Math.min(1,Number(body.x)||0)),y=Math.max(0,Math.min(1,Number(body.y)||0));state.map.tokens[key]={...previous,x,y,size:Math.max(24,Math.min(128,Number(body.size)||Number(previous.size)||42))};if(!previous.x||Math.abs(x-(previous.x||0))>0.005||Math.abs(y-(previous.y||0))>0.005)log(`${String(body.name||'Peça').slice(0,80)} foi movida no mapa.`); } break;
     case 'token-size': { requireDm();const key=String(body.key||'');if(!/^(player:\d+|monster:[\w-]+|boss:[\w-]+)$/.test(key))throw new Error('Peça de mapa inválida.');const previous=state.map.tokens[key]||{x:.5,y:.5};state.map.tokens[key]={...previous,size:Math.max(24,Math.min(128,Number(body.size)||42))};break; }
     case 'annotation': { requireDm(); const color=/^#[0-9a-f]{3,8}$/i.test(String(body.color||''))?body.color:'#e3bd63'; state.map.annotations.push({ id: crypto.randomUUID(), x: Math.max(0,Math.min(1,Number(body.x)||0)), y: Math.max(0,Math.min(1,Number(body.y)||0)), text: String(body.text || '').slice(0,160), points:Array.isArray(body.points)?body.points.slice(0,500).map(p=>({x:Math.max(0,Math.min(1,Number(p?.x)||0)),y:Math.max(0,Math.min(1,Number(p?.y)||0))})):[] , color}); if(state.map.annotations.length>300)state.map.annotations=state.map.annotations.slice(-300); } break;
@@ -498,7 +510,7 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === 'GET') {
       let target = url.pathname === '/' ? '/index.html' : url.pathname;
-      if (!/^\/((index|app|style)\.(html|js|css)|icons\.svg)$/.test(target)) target = '/index.html';
+      if (!/^\/((index|app|style)\.(html|js|css)|icons\.svg|vendor\/dice-box-threejs\/dice-box-threejs\.es\.js)$/.test(target)) target = '/index.html';
       const file = path.join(PUBLIC, target.slice(1));
       if (!fs.existsSync(file)) return send(res,404,'Not found','text/plain; charset=utf-8');
       const mime = file.endsWith('.html') ? 'text/html; charset=utf-8' : file.endsWith('.js') ? 'text/javascript; charset=utf-8' : file.endsWith('.svg') ? 'image/svg+xml' : 'text/css; charset=utf-8';
