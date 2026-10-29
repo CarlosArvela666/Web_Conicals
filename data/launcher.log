@@ -1,0 +1,47 @@
+
+--- Arranque 2026-10-29 18:43:27 ---
+ERRO: node:events:487
+ERRO:       throw er; // Unhandled 'error' event
+ERRO:       ^
+ERRO: 
+ERRO: Error: listen EADDRINUSE: address already in use 0.0.0.0:3040
+ERRO:     at Server.setupListenHandle [as _listen2] (node:net:2167:16)
+ERRO:     at listenInCluster (node:net:2224:12)
+ERRO:     at node:net:2448:7
+ERRO:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+ERRO: Emitted 'error' event on Server instance at:
+ERRO:     at emitErrorNT (node:net:2203:8)
+ERRO:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+ERRO:   code: 'EADDRINUSE',
+ERRO:   errno: -4091,
+ERRO:   syscall: 'listen',
+ERRO:   address: '0.0.0.0',
+ERRO:   port: 3040
+ERRO: }
+ERRO: 
+ERRO: Node.js v24.19.0
+
+--- Arranque 2026-10-29 18:44:43 ---
+CrÃ³nicas Web ativo em http://localhost:3041
+DM: http://localhost:3041/dm | Projetor: http://localhost:3041/projector
+Rede local: http://192.168.1.130:3041
+
+--- Arranque 2026-10-29 18:46:12 ---
+CrÃ³nicas Web ativo em http://localhost:3042
+DM: http://localhost:3042/dm | Projetor: http://localhost:3042/projector
+Rede local: http://192.168.1.130:3042
+
+--- Arranque 2026-10-29 18:48:56 ---
+CrÃ³nicas Web ativo em http://localhost:3041
+DM: http://localhost:3041/dm | Projetor: http://localhost:3041/projector
+Rede local: http://192.168.1.130:3041
+
+--- Arranque 2026-10-29 19:07:34 ---
+CrÃ³nicas Web ativo em http://localhost:3042
+DM: http://localhost:3042/dm | Projetor: http://localhost:3042/projector
+Rede local: http://192.168.1.130:3042
+
+--- Arranque 2026-10-29 19:08:20 ---
+CrÃ³nicas Web ativo em http://localhost:3042
+DM: http://localhost:3042/dm | Projetor: http://localhost:3042/projector
+Rede local: http://192.168.1.130:3042
