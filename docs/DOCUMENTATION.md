@@ -36,6 +36,7 @@ server.js          HTTP server, state machine, persistence, SRD proxy + cache
 public/index.html  shell
 public/app.js      the whole client (render-to-string + event binding)
 public/style.css   all styles (dark "grimoire" UI + parchment character sheet)
+public/vendor/dice-box-threejs/  3D dice (MIT, vendored, loaded on demand)
 public/icons.svg   Lucide icon sprite (ISC licence), used as <svg><use href="/icons.svg#i-NAME"/></svg>
 data/              campaign saves, uploaded maps/portraits/music, SRD cache
 ```
@@ -72,6 +73,7 @@ DM-only unless noted.
 - **Combat:** `heal`, `damage`, `effect` (add/remove a condition), `roll` (anyone; the server rolls with `crypto.randomInt`), `roll-initiative`, `start-battle`, `end-battle`, `turn` (`step: ±1`)
 - **Ambience:** `set-mode` (`day` | `night` | `normal` | `battle`), `battle-audio`, `media-upload`
 - **Maps:** `map-upload` (each upload becomes a new scene), `map-select`, `map-rename`, `map-delete`, `map-visible`, `map-options` (grid), `place-token`, `token-size`, `annotation`, `clear-annotations`, `annotations-visible`
+- **Fog of war:** `fog-stroke` (`{mode:'reveal'|'hide', r, points}`, where r is a fraction of the map width), `fog-reset` (`{cover:true}` covers everything, otherwise removes the fog), `fog-undo`
 - **Log:** `log`
 
 ### Campaign state (`data/campaign.json`)
@@ -85,7 +87,8 @@ DM-only unless noted.
   "monsters": [ { "id", "name", "hp", "maxHp", "ac", "cr", "xp", "type", "size", "image", "attacks": [{ "name", "desc", "attack_bonus", "damage": [{ "damage_dice", "damage_type" }] }], "description", "effects", "die", "visible" } ],
   "bosses":   [ /* same shape as monsters */ ],
   "map":  { /* the ACTIVE scene, the same object as one entry of maps[] */ },
-  "maps": [ { "id", "name", "url", "visible", "grid", "gridSize", "tokens": { "player:1": { "x": 0.3, "y": 0.5, "size": 42 } }, "annotations": [], "annotationsVisible" } ],
+  "maps": [ { "id", "name", "url", "visible", "grid", "gridSize", "tokens": { "player:1": { "x": 0.3, "y": 0.5, "size": 42 } }, "annotations": [], "annotationsVisible",
+              "fog": { "enabled": false, "base": "covered|clear", "strokes": [{ "mode": "reveal|hide", "r": 0.06, "points": [{ "x": 0.3, "y": 0.5 }] }] } } ],
   "battle": { "audioUrl", "audioName", "volume" },
   "log": [], "rolls": []
 }
@@ -106,3 +109,7 @@ DM-only unless noted.
 - `icon(name)` returns an inline `<svg><use>` from the sprite. To add an icon, regenerate `public/icons.svg` from `lucide-static` (see `PROGRESS.md`).
 - Ambience: `document.body.dataset.mode` tints the whole page, and `.map-frame.mode-*` drives the `.map-ambient` overlay: a night filter, warm day light, or a pulsing red vignette in battle.
 - Token motion: tokens are rebuilt on every update, so `animateTokens()` replays each move from the last drawn position (Web Animations API, with a hop and a dashed trail). It respects `prefers-reduced-motion`.
+- Map view (zoom/pan) is local to each screen: `mapView[mapId] = {z, x, y}` is applied as a CSS transform on `.map-stage` after every render. `stagePoint()` uses the transformed bounding box, so clicks, drags, the ruler and the fog brush all land on the right spot of the image at any zoom.
+- `gridSize` is in pixels of the original image. The grid draws as `background-size: gs/naturalWidth %`, and the ruler converts with the same numbers.
+- Fog renders as an SVG mask: base rect white (covered) or black (clear), reveal strokes black, hide strokes white, blurred for soft edges, over a turbulence "cloud" fill. It sits above tokens and notes, and the DM's copy is translucent.
+- 3D dice: `watchRolls()` compares `rolls[0].id` after each update and animates up to 3 new rolls through a queue. `animateRoll()` calls `box.roll("NdS@v1,v2")`, so the dice land on the server's result. The library loads with `import()` the first time a roll happens, and the toggle is stored in `localStorage['cronicas-dice3d']`.

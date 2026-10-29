@@ -6,6 +6,23 @@ Legend: ✅ done · 🟡 partial · ⬜ to do · 🐞 known bug
 
 ---
 
+## v2.2 — 2026-10-29 · zoom, ruler, fog of war, 3D dice
+
+### Added
+- ✅ **Map zoom & pan** on every screen: mouse wheel zooms around the cursor (100–600%), drag to pan, two-finger pinch on tablets and phones, and − / % / + buttons in the map toolbar (click % to fit the whole map). Each screen keeps its own zoom.
+- ✅ **Ruler** (everyone): pick the ruler and drag on the map. It shows metres using the 5e grid rule (each square counts once, diagonals included, 1 square = 1.5 m) plus the straight-line distance. The measurement stays until you clear it.
+- ✅ **Grid in image pixels**: the grid size is now measured in pixels of the original map image, so every screen and zoom level shows the same squares. The slider runs from 8 to 300 px.
+- ✅ **Fog of war** per scene (DM): "Revelar" and "Ocultar" brushes with an adjustable size, undo, "Cobrir tudo" and "Revelar tudo" (asks for confirmation).
+  - Painting on a fog-free map adds patches of fog; "Cobrir tudo" starts fully covered.
+  - Players and the projector see an opaque cloudy fog that hides tokens and notes. The DM sees it half-transparent.
+- ✅ **3D dice** on every screen, using `@3d-dice/dice-box-threejs` (MIT), vendored under `public/vendor/` so it works offline. The server still rolls; the 3D dice are told the result and land on it ("2d20@18,16"), then a result banner shows the total. Dice are gold for players, red for monsters, purple for bosses and blue for the DM. Initiative bursts are skipped, d100 stays 2D, and a "3D" toggle in the header turns them off per device.
+
+### Checked
+- In the browser (1366×860 and 375×812): zoom buttons and transform, fog cover + reveal through the API, ruler drag (15 squares on a 24 px grid = 22.5 m), fog brush drag saved as a stroke, the player sees opaque fog without the DM's fog tools, a 2d20+3 roll animates and the banner matches the server's roll exactly, and the map toolbar fits on a phone.
+- Not tested with real fingers: pinch-zoom and touch panning (simulated pointers only).
+
+---
+
 ## v2.1 — 2026-10-29
 
 ### Fixed
@@ -32,7 +49,7 @@ Legend: ✅ done · 🟡 partial · ⬜ to do · 🐞 known bug
 - ✅ **Campaigns tab**: list sorted by last played, "Continuar" to switch, create, delete with a real confirmation, rename the chapter, export and import.
 - ✅ **Token motion**: moves glide on every screen with a small hop and a coloured trail. The DM drags with live feedback, taps a token to select it, and unplaced tokens show dimmed. Tokens carry an HP bar, and downed creatures turn grey.
 - ✅ **Player view rebuilt for PC and tablet**: a status bar (portrait, HP, AC, initiative, effects, music) and separate **Ficha / Mapa / Mesa / Grupo** tabs, so the sheet and the map are never on screen together. Quick-dice buttons for players.
-- ✅ **Icon library**: a Lucide SVG sprite (87 icons), local, so it works offline.
+- ✅ **Icon library**: a Lucide SVG sprite (97 icons as of v2.2), local, so it works offline.
 - ✅ Portraits on the projector, the launcher and other players' views.
 
 ### Checked
@@ -65,7 +82,7 @@ Legend: ✅ done · 🟡 partial · ⬜ to do · 🐞 known bug
 ---
 
 ## Known issues
-- 🐞 **No authentication**: the role (`dm` / `player`) is claimed by the browser, so anyone on the Wi-Fi can open `/dm`. Fine at a home table, risky on public Wi-Fi. → add a DM PIN (see roadmap).
+- ℹ️ **No authentication, on purpose**: the app is for a table of friends on a home network, so anyone on the Wi-Fi can open `/dm`. Don't run it on public Wi-Fi.
 - 🐞 Compendium **list names are English** (the GraphQL API has no translations), while details are Portuguese where available.
 - 🐞 The portable `CronicasWeb.exe` was built outside this repo. If it bundles an older Node, the certificate fix may not load (see DOCUMENTATION → certificate note). The package needs rebuilding from this source.
 - 🐞 The sheet has fixed row counts (6 attacks, 12 inventory rows, 17 spells), and "give to player" stops when they're full.
@@ -76,10 +93,9 @@ Legend: ✅ done · 🟡 partial · ⬜ to do · 🐞 known bug
 ## Roadmap (suggested order)
 
 ### Next up
-- ⬜ **DM PIN**: protect `/dm` and the DM-only actions with a PIN set on first run (stored hashed in `data/`).
 - ⬜ **Rebuild the portable .exe** from this source on Node 24, and document the build script.
-- ⬜ **Fog of war**: the DM paints revealed areas per scene, and players and the projector only see those.
-- ⬜ **Map zoom & pan** (wheel / pinch) and a **ruler** (grid squares → metres, 1.5 m per square).
+- ⬜ Share the DM's ruler on the projector (today each screen measures locally), plus cone/circle area templates for spells.
+- ⬜ Fog: rectangle/polygon reveal tool, and auto-reveal around player tokens (vision radius).
 - ⬜ **Players move their own token**, optionally limited to their turn and their speed.
 - ⬜ **Encounter difficulty**: XP budget by party level (easy/medium/hard/deadly) shown in the Encontro tab.
 
@@ -91,7 +107,7 @@ Legend: ✅ done · 🟡 partial · ⬜ to do · 🐞 known bug
 - ⬜ Short/long rest buttons (restore HP, hit dice, spell slots).
 - ⬜ Spell-slot checkboxes per level that players tick off.
 - ⬜ Music per mode (day / night / battle tracks) and per scene, with crossfade.
-- ⬜ Dice animation (3D or 2D tumble) on the projector.
+- ⬜ 3D dice: sounds (assets exist in the package, not vendored yet), a d100 percentile pair, and dice themes per player.
 
 ### Content
 - ⬜ Custom homebrew monsters and items saved to a local library.
@@ -118,4 +134,4 @@ for (const n of names) { const svg = await (await fetch(`https://unpkg.com/lucid
 fs.writeFileSync(out, `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">${parts.join('')}</svg>`);
 ```
 
-Current set: swords sword shield shield-half skull crown sun moon sun-moon map map-pin scroll-text book-open book-marked wand-sparkles sparkles flame heart heart-pulse heart-crack backpack dices dice-5 dice-6 users user user-round ghost eye eye-off plus minus x check search trash-2 pencil pen-line upload download image music volume-2 play pause skip-forward rotate-ccw house layout-dashboard monitor tablet-smartphone clock-3 history notebook-pen grid-3x3 move zap gem coins hourglass flag circle-dot crosshair layers library save folder-open folder-plus chevron-right chevron-left arrow-right footprints shield-plus feather castle mountain tent bug paw-print list-ordered wifi refresh-cw settings-2 info triangle-alert loader-circle
+Current set: swords sword shield shield-half skull crown sun moon sun-moon map map-pin scroll-text book-open book-marked wand-sparkles sparkles flame heart heart-pulse heart-crack backpack dices dice-5 dice-6 users user user-round ghost eye eye-off plus minus x check search trash-2 pencil pen-line upload download image music volume-2 play pause skip-forward rotate-ccw house layout-dashboard monitor tablet-smartphone clock-3 history notebook-pen grid-3x3 move zap gem coins hourglass flag circle-dot crosshair layers library save folder-open folder-plus chevron-right chevron-left arrow-right footprints shield-plus feather castle mountain tent bug paw-print list-ordered wifi refresh-cw settings-2 info triangle-alert loader-circle zoom-in zoom-out ruler cloud-fog cloud paintbrush eraser undo-2 maximize-2 box hand
