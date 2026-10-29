@@ -41,6 +41,22 @@ if not defined PORT (
   exit /b 1
 )
 
+netsh.exe advfirewall firewall show rule name="CronicasWeb-LAN" >nul 2>&1
+if errorlevel 1 (
+  powershell.exe -NoLogo -NoProfile -Command "$p=[Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent();if($p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){exit 0}else{exit 1}"
+  if errorlevel 1 (
+    echo O Windows vai pedir permissao de administrador para criar a regra LAN autorizada.
+    powershell.exe -NoLogo -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
+    exit /b 0
+  )
+  netsh.exe advfirewall firewall add rule name="CronicasWeb-LAN" dir=in action=allow program="%NODE%" protocol=TCP localport=3040-3050 remoteip=localsubnet profile=any enable=yes >nul
+  if errorlevel 1 (
+    echo ERRO: nao foi possivel criar a regra de firewall para a rede local.
+    pause
+    exit /b 1
+  )
+)
+
 if not exist "data" mkdir "data"
 set "HOST=0.0.0.0"
 echo A iniciar Crónicas Web com Node.js na porta %PORT%...
