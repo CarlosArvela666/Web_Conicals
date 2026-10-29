@@ -41,7 +41,7 @@ if not defined PORT (
   exit /b 1
 )
 
- powershell.exe -NoLogo -NoProfile -Command "$ErrorActionPreference='Stop';try{if(Get-NetFirewallRule -DisplayName 'CronicasWeb-LAN' -ErrorAction SilentlyContinue){exit 0}else{exit 1}}catch{exit 1}"
+powershell.exe -NoLogo -NoProfile -Command "$ErrorActionPreference='Stop';try{if(Get-NetFirewallRule -DisplayName 'CronicasWeb-LAN' -ErrorAction SilentlyContinue){exit 0}else{exit 1}}catch{exit 1}"
 if errorlevel 1 (
   powershell.exe -NoLogo -NoProfile -Command "$p=[Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent();if($p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){exit 0}else{exit 1}"
   if errorlevel 1 (
@@ -61,6 +61,41 @@ if errorlevel 1 (
 
 if not exist "data" mkdir "data"
 set "HOST=0.0.0.0"
+>"data\connection.txt" echo CRONICAS WEB - ACESSO NA REDE LOCAL
+>>"data\connection.txt" echo Porta: %PORT%
+>>"data\connection.txt" echo Neste computador: http://127.0.0.1:%PORT%/dm
+echo.
+echo ===== ENDERECOS PARA LIGACAO LOCAL =====
+echo Neste computador: http://127.0.0.1:%PORT%/dm
+set "FOUND_IP="
+set "IP_FILE=%TEMP%\cronicas-web-ips-%RANDOM%-%RANDOM%.txt"
+"%NODE%" -e "const os=require('node:os');process.stdout.write([...new Set(Object.values(os.networkInterfaces()).flat().filter(a=>a&&a.family==='IPv4'&&!a.internal&&!a.address.startsWith('169.254.')).map(a=>a.address))].join(String.fromCharCode(10)))" > "%IP_FILE%"
+for /f "usebackq delims=" %%I in ("%IP_FILE%") do (
+  set "FOUND_IP=1"
+  echo IP LAN %%I
+  echo   DM:       http://%%I:%PORT%/dm
+  echo   Player 1: http://%%I:%PORT%/player/1
+  echo   Player 2: http://%%I:%PORT%/player/2
+  echo   Player 3: http://%%I:%PORT%/player/3
+  echo   Player 4: http://%%I:%PORT%/player/4
+  echo   Player 5: http://%%I:%PORT%/player/5
+  echo   Player 6: http://%%I:%PORT%/player/6
+  echo   Projetor: http://%%I:%PORT%/projector
+  >>"data\connection.txt" echo IP LAN %%I
+  >>"data\connection.txt" echo DM: http://%%I:%PORT%/dm
+  >>"data\connection.txt" echo Player 1: http://%%I:%PORT%/player/1
+  >>"data\connection.txt" echo Player 2: http://%%I:%PORT%/player/2
+  >>"data\connection.txt" echo Player 3: http://%%I:%PORT%/player/3
+  >>"data\connection.txt" echo Player 4: http://%%I:%PORT%/player/4
+  >>"data\connection.txt" echo Player 5: http://%%I:%PORT%/player/5
+  >>"data\connection.txt" echo Player 6: http://%%I:%PORT%/player/6
+  >>"data\connection.txt" echo Projetor: http://%%I:%PORT%/projector
+)
+del "%IP_FILE%" >nul 2>&1
+if not defined FOUND_IP echo Nenhum IPv4 LAN encontrado; liga o Wi-Fi ou cabo de rede e inicia novamente.
+echo Enderecos guardados em data\connection.txt
+echo =========================================
+echo.
 echo A iniciar Cronicas Web com Node.js na porta %PORT%...
 echo Para outros dispositivos na mesma rede, usa o endereco "Rede local" que aparece abaixo.
 echo O endereco do DM termina em /dm; os jogadores usam /player/1 ate /player/6 e o projetor /projector.
