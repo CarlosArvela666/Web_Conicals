@@ -61,7 +61,7 @@ if errorlevel 1 (
 
 if not exist "data" mkdir "data"
 set "HOST=0.0.0.0"
-echo A iniciar Crónicas Web com Node.js na porta %PORT%...
+echo A iniciar Cronicas Web com Node.js na porta %PORT%...
 echo Para outros dispositivos na mesma rede, usa o endereco "Rede local" que aparece abaixo.
 echo O endereco do DM termina em /dm; os jogadores usam /player/1 ate /player/6 e o projetor /projector.
 echo Se a ligacao for bloqueada, permite o Node.js na rede privada no Firewall do Windows.
