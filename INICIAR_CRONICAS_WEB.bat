@@ -15,7 +15,16 @@ if not exist "public\index.html" (
 )
 
 set "NODE=%~dp0node.exe"
-if not exist "%NODE%" set "NODE=node.exe"
+if not exist "%NODE%" (
+  set "NODE="
+  for /f "delims=" %%N in ('where node.exe 2^>nul') do if not defined NODE set "NODE=%%N"
+)
+if not defined NODE (
+  echo ERRO: Node.js nao foi encontrado nesta pasta nem no PATH.
+  echo Instala Node.js LTS ou coloca node.exe junto do server.js.
+  pause
+  exit /b 1
+)
 "%NODE%" --version >nul 2>&1
 if errorlevel 1 (
   echo ERRO: Node.js nao encontrado.
@@ -25,7 +34,7 @@ if errorlevel 1 (
 )
 
 set "PORT="
-for /f "usebackq delims=" %%P in (`powershell.exe -NoLogo -NoProfile -Command "$l=[System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any,0);$l.Start();$p=([System.Net.IPEndPoint]$l.LocalEndpoint).Port;$l.Stop();$p"`) do set "PORT=%%P"
+for /f "usebackq delims=" %%P in (`powershell.exe -NoLogo -NoProfile -Command "$p=3040;while($p -le 3050){$l=[System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any,$p);try{$l.Start();$l.Stop();break}catch{$p++}};if($p -le 3050){$p}"`) do set "PORT=%%P"
 if not defined PORT (
   echo ERRO: nao foi possivel escolher uma porta livre.
   pause
@@ -34,7 +43,10 @@ if not defined PORT (
 
 if not exist "data" mkdir "data"
 set "HOST=0.0.0.0"
-echo A iniciar Cronicas Web com Node.js na porta %PORT%...
+echo A iniciar Crónicas Web com Node.js na porta %PORT%...
+echo Para outros dispositivos na mesma rede, usa o endereco "Rede local" que aparece abaixo.
+echo O endereco do DM termina em /dm; os jogadores usam /player/1 ate /player/6 e o projetor /projector.
+echo Se a ligacao for bloqueada, permite o Node.js na rede privada no Firewall do Windows.
 echo Mantem esta janela aberta durante o jogo. Ctrl+C termina o servidor.
 echo.
 
@@ -45,3 +57,4 @@ echo.
 if not "%RESULT%"=="0" echo O servidor terminou com o codigo %RESULT%. Consulta as mensagens acima.
 pause
 exit /b %RESULT%
+
