@@ -41,19 +41,21 @@ if not defined PORT (
   exit /b 1
 )
 
-netsh.exe advfirewall firewall show rule name="CronicasWeb-LAN" >nul 2>&1
+ powershell.exe -NoLogo -NoProfile -Command "$ErrorActionPreference='Stop';try{if(Get-NetFirewallRule -DisplayName 'CronicasWeb-LAN' -ErrorAction SilentlyContinue){exit 0}else{exit 1}}catch{exit 1}"
 if errorlevel 1 (
   powershell.exe -NoLogo -NoProfile -Command "$p=[Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent();if($p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){exit 0}else{exit 1}"
   if errorlevel 1 (
-    echo O Windows vai pedir permissao de administrador para criar a regra LAN autorizada.
-    powershell.exe -NoLogo -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
-    exit /b 0
-  )
-  netsh.exe advfirewall firewall add rule name="CronicasWeb-LAN" dir=in action=allow program="%NODE%" protocol=TCP localport=3040-3050 remoteip=localsubnet profile=any enable=yes >nul
-  if errorlevel 1 (
-    echo ERRO: nao foi possivel criar a regra de firewall para a rede local.
-    pause
-    exit /b 1
+    echo O Windows vai pedir permissao para liberar o acesso na rede local.
+    powershell.exe -NoLogo -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs" 2>nul
+    if not errorlevel 1 exit /b 0
+    echo Nao foi possivel elevar esta sessao; vou iniciar o site sem alterar o firewall.
+    echo Se outros dispositivos nao conseguirem ligar, executa este BAT como administrador.
+  ) else (
+    powershell.exe -NoLogo -NoProfile -Command "$ErrorActionPreference='Stop';New-NetFirewallRule -DisplayName 'CronicasWeb-LAN' -Direction Inbound -Action Allow -Enabled True -Protocol TCP -LocalPort '3040-3050' -RemoteAddress LocalSubnet -Profile Any -Program '%NODE%' | Out-Null"
+    if errorlevel 1 (
+      echo Nao foi possivel criar a regra automaticamente; o servidor vai iniciar na mesma.
+      echo Se necessario, executa este BAT como administrador.
+    )
   )
 )
 
