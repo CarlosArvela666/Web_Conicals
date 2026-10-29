@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cronicas",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "process.env.HOST='127.0.0.1';require('./server.js')"],
+      "port": 3040
+    }
+  ]
+}
