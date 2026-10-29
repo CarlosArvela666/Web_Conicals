@@ -1,0 +1,9 @@
+DM: http://localhost:3042/dm
+Projetor: http://localhost:3042/projector
+Rede local: http://192.168.1.130:3042
+Player 1: /player/1
+Player 2: /player/2
+Player 3: /player/3
+Player 4: /player/4
+Player 5: /player/5
+Player 6: /player/6
